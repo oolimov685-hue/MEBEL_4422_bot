@@ -1,9 +1,7 @@
-import os
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils import executor
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from aiohttp import web
 
 # Bot Token
 API_TOKEN = '8253406057:AAFiTOw4fU-ewsBec1h5D7fBvFv-GAlILqk'
@@ -13,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-# Tugmalar
+# Tugmalar paneli
 menu_keyboard = ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
 btn_portfolio = KeyboardButton("📂 Bizning ishlarimiz (Portfolio)")
 btn_about = KeyboardButton("ℹ️ Biz haqimizda")
@@ -27,6 +25,7 @@ async def send_welcome(message: types.Message):
     welcome_text = (
         f"Assalomu alaykum, {message.from_user.full_name}!\n"
         "**MEBEL_4422** rasmiy botiga xush kelibsiz.\n\n"
+        "Sizga sifatli va zamonaviy mebel loyihalarini taqdim etishdan mamnunmiz. "
         "Quyidagi menyu orqali ishlarimiz bilan tanishishingiz yoki buyurtma qoldirishingiz mumkin 👇"
     )
     await message.reply(welcome_text, reply_markup=menu_keyboard, parse_mode="Markdown")
@@ -35,37 +34,37 @@ async def send_welcome(message: types.Message):
 async def about_us(message: types.Message):
     about_text = (
         "📐 **MEBEL_4422** — shkaflar, oshxona mebellari va har qanday turdagi custom "
-        "mebellarni loyihalash va ishlab chiqarish bilan shug'undleydi."
+        "mebellarni loyihalash va ishlab chiqarish bilan shug'ullanadi.\n\n"
+        "Biz har bir loyihaga individual yondashib, uning 3D modelini chizib beramiz "
+        "va yuqori sifatli materiallardan foydalanamiz."
     )
     await message.answer(about_text, parse_mode="Markdown")
 
 @dp.message_handler(lambda message: message.text == "📂 Bizning ishlarimiz (Portfolio)")
 async def show_portfolio(message: types.Message):
-    await message.answer("Bu bo'limda tez kunda tayyorlangan mebellar rasmlari joylashtiriladi.")
+    portfolio_text = (
+        "Bu bo'limda tez kunda biz tomondan tayyorlangan eng so'nggi va zamonaviy "
+        "mebel loyihalari, shkaflar hamda oshxona mebellari rasmlari joylashtiriladi."
+    )
+    await message.answer(portfolio_text)
 
 @dp.message_handler(lambda message: message.text == "✍️ Buyurtma berish")
 async def make_order(message: types.Message):
-    await message.answer("✍️ **Buyurtma uchun:**\n\nIsmingiz va telefon raqamingizni yozib qoldiring.", parse_mode="Markdown")
+    order_text = (
+        "✍️ **Buyurtma berish yoki konsultatsiya olish uchun:**\n\n"
+        "Iltimos, ismingiz, telefon raqamingiz va qanday mebel buyurtma qilmoqchi "
+        "ekanligingizni yozib qoldiring. Mutaxassislarimiz siz bilan tez fursatda bog'lanishadi!"
+    )
+    await message.answer(order_text, parse_mode="Markdown")
 
 @dp.message_handler(lambda message: message.text == "🧮 Mebel narxini hisoblash")
 async def calc_mebel(message: types.Message):
-    await message.answer("🧮 Tez kunda bu yerga aqlli kalkulyator qo'shiladi.")
-
-# Render majburiy port talab qilgani uchun soxta veb-server
-async def handle(request):
-    return web.Response(text="Bot is running!")
-
-async def on_startup(dp):
-    import asyncio
-    asyncio.create_task(dp.start_polling())
+    calc_text = (
+        "🧮 **Mebel narxini dastlabki hisoblash:**\n\n"
+        "Yaqin orada bu yerga o'lchamlar va ishlatiladigan materiallarni kiritib, "
+        "mebelning taxminiy narxini chiqarib beradigan aqlli kalkulyator qo'shiladi."
+    )
+    await message.answer(calc_text, parse_mode="Markdown")
 
 if __name__ == '__main__':
-    app = web.Application()
-    app.router.add_get('/', handle)
-    
-    # Portni Render taqdim etgan muhitdan olamiz
-    port = int(os.environ.get("PORT", 10000))
-    
-    # Botni ishga tushirish
-    dp.loop.create_task(on_startup(dp))
-    web.run_app(app, host='0.0.0.0', port=port)
+    executor.start_polling(dp, skip_updates=True)
